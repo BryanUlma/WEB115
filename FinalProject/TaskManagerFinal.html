@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>TaskFlow Task Manager</title>
+        </head>
+        <body style="font-family: Arial, sans-serif">
+
+            <!--Page Title-->
+            <h1 style="text-align: center;">Task Manager</h1>
+
+            <!--Task Forms, Priority Button, Important Checkbox and Submit Button-->
+            <form id="taskForm" style="text-align: center; margin-top:20px;">
+                <input type="text" id="taskName" placeholder="Enter Task" required /> 
+                <select id="taskPriority" required>
+                    <option value="">Select Priority</option>
+                    <option value="High">High</option>
+                    <option value="Medium">Medium</option>
+                    <option value="Low">Low</option>
+                </select>
+                <label>
+                    <input type="checkbox" id="taskImportant" />
+                    Important
+                </label>
+                <button type="submit">Add Task</button>
+            </form>
+
+            <!--Task Display Div Area-->
+            <div id="taskmanager" style="margin-top:20px; font-family:Courier New, monospace;"></div>
+
+            <!--JavaScript Portion-->
+            <script>
+                //Creates an empty array to hold tasks and initializes the counter at 1 for unique ID
+                let tasks = [];
+                let taskId = 1;
+
+                //Handle Form Submission and prevent page reload
+                document.getElementById("taskForm").addEventListener("submit", function(e) {
+                    e.preventDefault();
+
+                    // Collect form values
+                    const name = document.getElementById("taskName").value.trim();
+                    const priority = document.getElementById("taskPriority").value;
+                    const isImportant = document.getElementById("taskImportant").checked;
+                    const date = new Date().toLocaleDateString();
+
+                    // Prevents empty task names
+                    if (name ==="") return; 
+
+                    //Creates a new task object
+                    const task = {
+                        id: taskId++,
+                        name: name,
+                        priority: priority,
+                        isImportant: isImportant,
+                        isCompleted: false,
+                        date: date
+                    };
+
+                    //Adds task to the Task List
+                    tasks.push(task);
+                    
+                     // Show updated Tasks List on screen
+                    displayTasks();
+
+                    //Logs the Task List to console
+                    console.log(JSON.stringify(tasks));  
+                
+                    //Resets the form fields after submission
+                    document.getElementById("taskForm").reset();
+                    });
+
+                    //Function to display all of the tasks
+                    function displayTasks() {
+                    const taskDiv = document.getElementById("taskmanager"); 
+                    taskDiv.innerHTML ="";
+                    
+                    //Loop through tasks and add styling 
+                    tasks.forEach(task => {
+
+                        //Set my base style for the row
+                        let rowStyle ="display:flex; justify-content:space-evenly; align-items:center; margin:10px 0; padding:5px; border:1px solid #ccc;";
+                        
+                        //Highlight Important Items in Red
+                        if(task.isImportant){
+                            rowStyle += "background-color:#ffe5e5;";
+                        }
+                        //I Set High Priority items to Purple
+                        let textStyle=""
+                         if(task.priority ==="High"){
+                            textStyle += "color:purple;"; 
+                        }
+
+                        //I set Medium priority items to Blue
+                        if(task.priority ==="Medium"){
+                            textStyle+="color:blue;";
+                        }
+
+                        //I set Low priority items to Green
+                        if(task.priority === "Low"){
+                            textStyle+="color: green;";
+                        }
+                        //Strikethrough for completed items
+                        if (task.isCompleted){
+                            textStyle += "text-decoration:line-through;";
+                        }
+
+                        //Build the task row in the Div 
+                        taskDiv.innerHTML += `
+                        <div style="${rowStyle}">
+                            <span style="${textStyle}"><strong>${task.name}</strong></span>
+                            <span style="${textStyle}">Priority: ${task.priority}</span> 
+                            <span style="${textStyle}">${task.date}</span>
+                            <label>
+                                <input type="checkbox" onchange="toggleComplete(${task.id})" ${task.isCompleted ? "checked" : ""}/> Complete
+                            </label>
+                            <button onclick="deleteTask(${task.id})">Delete</button>
+                        </div>
+                        `;               
+                });
+            }
+
+            // Deletes a task by ID
+            function deleteTask(id) {
+                tasks = tasks.filter(task => task.id !== id);
+                displayTasks();
+                console.log(JSON.stringify(tasks));
+            }
+
+            // Toggles the completion status and applies the strikethrough if toggled
+            function toggleComplete(id) {
+                tasks = tasks.map(task => {
+                    if (task.id === id) {
+                        task.isCompleted = !task.isCompleted;
+                    }
+                    return task;
+                });
+                
+                displayTasks();
+                console.log(JSON.stringify(tasks));
+            }
+            </script>
+        </body>
+</html>
